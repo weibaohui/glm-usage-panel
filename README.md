@@ -8,16 +8,23 @@
 一个用 [CUI](https://github.com/yappologistic/CUI)（纯 C 绘制的立即模式 UI 库）做的
 **智谱 GLM / BigModel 套餐用量桌面面板**。与之前给
 [有道听力宝 E6](https://github.com/weibaohui/youdao-tinglibao-e6) MiniApp、
-Metalio 墨水屏、Kindle KRocker 做的 GLM 用量查询同源的接口契约 —— 这是第一个桌面窗口版本。
+Metalio 墨水屏、Kindle KRocker 做的 GLM 用量查询同源的接口契约 —— 这是第一个桌面窗口版本，
+**已于 2026-11-21 用真实凭据跑通**（团队套餐 + 个人机构双视图）。
+
+<p align="center">
+  <img src="docs/screenshot-real-team.png" width="49%" alt="真实数据 · 团队编程套餐">
+  <img src="docs/screenshot-real-personal.png" width="49%" alt="真实数据 · 个人机构降级视图">
+</p>
 
 原生窗口（macOS / Windows / Linux，OpenGL 渲染、软件渲染兜底），整包约 1 MB，
 无 WebView、无 Electron、无运行时依赖。**同一份 C 代码也可以编译到浏览器（WASM）** —— CUI 自带这条路径。
 
 ## 功能
 
-- **两个额度窗口**：5 小时窗口 / 本周额度（`TOKENS_LIMIT` / `CREDIT_LIMIT`，
-  以 `nextResetTime` 更早者为 5 小时窗）——环形仪表（绿 → 黄 → 红分档）、剩余 Tokens（万/亿 格式化）、
-  重置时间（UTC+8 + 相对时间）
+- **两个额度窗口**：5 小时窗口 / 本周额度（以 `nextResetTime` 更早者为 5 小时窗）——环形仪表（绿 → 黄 → 红分档）、剩余量、重置时间（UTC+8 + 相对时间）。
+  兼容两种真实返回形态：旧版 `TOKENS_LIMIT`+`CREDIT_LIMIT`（剩余按 Tokens 标注，ISO 时间串）；
+  2026-11 实测新版两个窗口均为 `CREDIT_LIMIT`（剩余按积分标注，`nextResetTime` 为毫秒时间戳，
+  另有 `unit`/`number`（3/5=5 小时窗、6/1=周窗）与 `currentValue`/`usage`（已用/总量））
 - **MCP 用量**（`TIME_LIMIT`）：当月请求数 / 上限
 - **重置券**：5 小时 / 本周窗口的可用张数
 - **账户口径**：余额 / 赠送额度 / 累计消耗；无编程套餐的机构自动降级为账户视图

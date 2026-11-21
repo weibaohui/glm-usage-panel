@@ -402,7 +402,15 @@ static void parse_quota_body(json_doc *d, const char *body, glm_snapshot *snap, 
             dst->remaining = mj_num(mj_get(item, "remaining"));
             dst->current_value = mj_num(mj_get(item, "currentValue"));
             dst->usage = mj_num(mj_get(item, "usage"));
-            dst->next_reset = parse_iso8601(mj_strz(mj_get(item, "nextResetTime")));
+            dst->unit = (int)mj_num(mj_get(item, "unit"));
+            dst->number = mj_num(mj_get(item, "number"));
+            /* nextResetTime comes as epoch millis (number) on the live API and as
+             * an ISO-8601 string on older shapes; accept both */
+            mj_val *nrt = mj_get(item, "nextResetTime");
+            if (nrt && nrt->type == MJ_NUM && nrt->num > 1e12)
+                dst->next_reset = (long long)(nrt->num / 1000.0);
+            else
+                dst->next_reset = parse_iso8601(mj_strz(nrt));
             snap->limit_count++;
         }
     }

@@ -113,8 +113,29 @@ static void split_windows(const glm_snapshot *s, const glm_limit **five, const g
     }
 }
 
-static void window_card(cui_ctx *ui, const char *id, const char *title, const glm_limit *l,
-                        long long now) {
+/* window title: prefer the API's unit/number (3=hour, 6=week), else the caller's */
+static void window_title(const glm_limit *l, const char *fallback, char *out, size_t cap) {
+    if (l && l->unit == 3 && l->number > 0) {
+        snprintf(out, cap, "%.0f 小时窗口", l->number);
+        return;
+    }
+    if (l && l->unit == 6 && l->number > 0) {
+        if (l->number == 1) snprintf(out, cap, "本周额度");
+        else snprintf(out, cap, "%.0f 周窗口", l->number);
+        return;
+    }
+    snprintf(out, cap, "%s", fallback);
+}
+
+/* what the remaining figure counts on this kind of limit */
+static const char *remaining_unit(const glm_limit *l) {
+    return l && !strcmp(l->kind, "TOKENS_LIMIT") ? "Tokens" : "积分";
+}
+
+static void window_card(cui_ctx *ui, const char *id, const char *fallback_title,
+                        const glm_limit *l, long long now) {
+    char title[64];
+    window_title(l, fallback_title, title, sizeof title);
     cui_card(ui, .gap = 14, .width = CUI_GROW(1), .min_width = 320) {
         cui_row(ui) {
             cui_column(ui, .gap = 2, .width = CUI_FILL) {
@@ -148,9 +169,19 @@ static void window_card(cui_ctx *ui, const char *id, const char *title, const gl
                              .bands = bands, .band_count = 3, .no_needle = true);
             cui_column(ui, .gap = 8, .width = CUI_FILL) {
                 cui_column(ui, .gap = 0) {
-                    cui_text(ui, "剩余额度", .size = 12, .color = CUI_COLOR_TEXT_SECONDARY);
+                    char cap_label[24];
+                    snprintf(cap_label, sizeof cap_label, "剩余%s", remaining_unit(l));
+                    cui_text(ui, cap_label, .size = 12, .color = CUI_COLOR_TEXT_SECONDARY);
                     cui_text(ui, remain, .font = CUI_FONT_DISPLAY, .size = 24, .tabular = true);
-                    cui_text(ui, "Tokens", .size = 11, .color = CUI_COLOR_TEXT_SECONDARY);
+                    if (l->usage > 0) {
+                        char used[96];
+                        snprintf(used, sizeof used, "已用 %.0f · 共 %.0f", l->current_value,
+                                 l->usage);
+                        cui_text(ui, used, .size = 11, .color = CUI_COLOR_TEXT_SECONDARY);
+                    } else {
+                        cui_text(ui, remaining_unit(l), .size = 11,
+                                 .color = CUI_COLOR_TEXT_SECONDARY);
+                    }
                 }
                 progress_tone(ui, l->percentage);
             }

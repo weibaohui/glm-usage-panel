@@ -36,9 +36,11 @@ typedef struct {
 typedef struct {
     char kind[24];                        /* TOKENS_LIMIT / CREDIT_LIMIT / TIME_LIMIT */
     double percentage;                    /* used, 0..100 */
-    double remaining;                     /* tokens left */
-    double current_value, usage;          /* TIME_LIMIT counters */
+    double remaining;                     /* tokens or credits left */
+    double current_value, usage;          /* TIME_LIMIT counters; CREDIT_LIMIT: used / total */
     long long next_reset;                 /* epoch seconds, 0 = unknown */
+    int unit;                             /* time-unit enum (3 = hour, 6 = week), 0 = absent */
+    double number;                        /* window length in that unit (5h, 1 week) */
 } glm_limit;
 
 typedef struct {
