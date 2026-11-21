@@ -140,8 +140,12 @@ tests/
 └── discovery_test.c
 ```
 
-界面中文依赖系统 CJK 字体做回退（macOS Hiragino/Heiti、Linux Noto/WQY、Windows 雅黑），
-运行时自动探测，找不到会提示且不崩溃。构建时 CUI 通过 FetchContent 拉取固定 tag（v1.4.0）。
+## 行为说明
+
+- **关闭窗口即退出**。CUI（v1.4.0）暂无系统托盘/拦截关闭的 API（`cui_status_bar_*` 是窗口内底栏，不是系统托盘），
+  所以不做"最小化到托盘"；自动刷新只在窗口存活期间工作。
+- 界面中文依赖系统 CJK 字体做回退（macOS Hiragino/Heiti、Linux Noto/WQY、Windows 雅黑），
+  运行时自动探测，找不到会提示且不崩溃。构建时 CUI 通过 FetchContent 拉取固定 tag（v1.4.0）。
 
 ## 安全
 
